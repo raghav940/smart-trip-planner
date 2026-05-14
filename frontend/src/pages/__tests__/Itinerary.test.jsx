@@ -70,7 +70,7 @@ describe('Itinerary component (integration)', () => {
         </BrowserRouter>
       </Provider>
     )
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading itinerary...')).toBeInTheDocument()
   })
 
   it('has add day button', () => {

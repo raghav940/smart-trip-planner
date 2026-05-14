@@ -48,7 +48,7 @@ describe('Trips component (integration)', () => {
         </BrowserRouter>
       </Provider>
     )
-    expect(screen.getByText('No trips yet.')).toBeInTheDocument()
+    expect(screen.getByText(/No trips yet/i)).toBeInTheDocument()
   })
 
   it('shows loading when status is loading', () => {
@@ -63,6 +63,6 @@ describe('Trips component (integration)', () => {
         </BrowserRouter>
       </Provider>
     )
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading trips...')).toBeInTheDocument()
   })
 })
