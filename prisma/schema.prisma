@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  name        String?
+  role        Role      @default(USER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  trips       Trip[]
+  bookings    Booking[]
+  messages    Message[]
+}
+
+model Trip {
+  id          String    @id @default(uuid())
+  title       String
+  destination String
+  startDate   DateTime
+  endDate     DateTime
+  budget      Float?
+  travelers   Int      @default(1)
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  itinerary   Itinerary?
+  bookings    Booking[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Itinerary {
+  id       String   @id @default(uuid())
+  tripId   String   @unique
+  trip     Trip     @relation(fields: [tripId], references: [id])
+  version  Int      @default(1)
+  days     ItineraryDay[]
+  meta     Json?
+}
+
+model ItineraryDay {
+  id           String   @id @default(uuid())
+  itineraryId  String
+  dayIndex     Int
+  date         DateTime
+  activities   Json
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id])
+}
+
+model Hotel {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  city        String
+  address     String?
+  rating      Float?
+  images      String[]
+  rooms       Json?
+  createdAt   DateTime @default(now())
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  userId    String
+  tripId    String?
+  hotelId   String
+  status    BookingStatus @default(PENDING)
+  amount    Float?
+  checkIn   DateTime?
+  checkOut  DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  fromId    String
+  toId      String
+  tripId    String?
+  content   String
+  createdAt DateTime @default(now())
+  from      User     @relation("from", fields: [fromId], references: [id])
+  to        User     @relation("to", fields: [toId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  USER
+  HOTEL_OWNER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}

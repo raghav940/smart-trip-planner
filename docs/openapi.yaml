@@ -1,0 +1,155 @@
+openapi: 3.0.3
+info:
+  title: Smart Trip Planner API
+  version: 0.1.0
+  description: Starter OpenAPI spec for Smart Trip Planner (auth, trips, hotels, bookings, chat)
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: http://localhost:4000
+    description: Local dev
+paths:
+  /api/auth/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+      responses:
+        '201':
+          description: Created
+  /api/auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '200':
+          description: OK
+  /api/trips:
+    get:
+      summary: List user trips
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create a trip (manual)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripCreate'
+      responses:
+        '201':
+          description: Created
+  /api/trips/{tripId}/generate:
+    post:
+      summary: Generate AI itinerary (enqueue job)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Accepted (job queued)
+  /api/hotels:
+    get:
+      summary: Search hotels
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/bookings:
+    post:
+      summary: Create booking
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+      responses:
+        '201':
+          description: Created
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Signup:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    TripCreate:
+      type: object
+      required: [title, destination, startDate, endDate]
+      properties:
+        title:
+          type: string
+        destination:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        budget:
+          type: number
+        travelers:
+          type: integer
+    BookingCreate:
+      type: object
+      required: [tripId, hotelId]
+      properties:
+        tripId:
+          type: string
+        hotelId:
+          type: string
+        roomType:
+          type: string
+        checkIn:
+          type: string
+          format: date
+        checkOut:
+          type: string
+          format: date
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
