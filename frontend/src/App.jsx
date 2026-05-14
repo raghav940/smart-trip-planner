@@ -9,24 +9,26 @@ import Trips from './pages/Trips'
 import TripForm from './pages/TripForm'
 import TripDetails from './pages/TripDetails'
 import Itinerary from './pages/Itinerary'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function Header(){
   const { user, logout } = useAuth()
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="max-w-4xl mx-auto p-4 flex justify-between items-center">
         <h1 className="text-xl font-semibold">Smart Trip Planner</h1>
         <nav className="space-x-4">
-          <Link to="/" className="text-sky-600">Home</Link>
+          <Link to="/" className="text-sky-600 hover:underline">Home</Link>
           {user ? (
             <>
               <span className="text-sm text-gray-600">{user.name}</span>
-              <button onClick={logout} className="text-sky-600">Logout</button>
+              <button onClick={logout} className="text-sky-600 hover:underline">Logout</button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sky-600">Login</Link>
-              <Link to="/signup" className="text-sky-600">Signup</Link>
+              <Link to="/login" className="text-sky-600 hover:underline">Login</Link>
+              <Link to="/signup" className="text-sky-600 hover:underline">Signup</Link>
             </>
           )}
         </nav>
@@ -49,10 +51,11 @@ export default function App(){
        <Route path="/trips/new" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
        <Route path="/trips/:id" element={<ProtectedRoute><TripDetails /></ProtectedRoute>} />
        <Route path="/trips/:id/edit" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
-      <Route path="/trips/:id/itinerary" element={<ProtectedRoute><Itinerary /></ProtectedRoute>} />
+       <Route path="/trips/:id/itinerary" element={<ProtectedRoute><Itinerary /></ProtectedRoute>} />
      </Routes>
    </main>
   </div>
+  <ToastContainer position="bottom-right" autoClose={4000} hideProgressBar={false} newestOnTop={true} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
   </AuthProvider>
  )
 }
