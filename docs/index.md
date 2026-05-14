@@ -6,6 +6,7 @@ Contents:
 - [Architecture](architecture.md)
 - [MVP scope](mvp.md)
 - [Development roadmap](roadmap.md)
+- [Sprint plan](sprints.md)
 - [API contract (starter)](api.md)
 - [Prerequisites & setup](prerequisites.md)
 
