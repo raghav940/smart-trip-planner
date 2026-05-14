@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  name        String?
-  role        Role      @default(USER)
+  id                     String   @id @default(uuid())
+  email                  String   @unique
+  password               String
+  name                   String?
+  role                   Role     @default(USER)
   refreshTokenHash       String?
   passwordResetTokenHash String?
   passwordResetExpiresAt  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  trips       Trip[]
-  bookings    Booking[]
-  sentMessages Message[] @relation("from")
-  receivedMessages Message[] @relation("to")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  trips                  Trip[]
+  bookings               Booking[]
+  sentMessages           Message[] @relation("from")
+  receivedMessages       Message[] @relation("to")
 }
 
 model Trip {
@@ -31,31 +31,31 @@ model Trip {
   startDate   DateTime
   endDate     DateTime
   budget      Float?
-  travelers   Int      @default(1)
+  travelers   Int       @default(1)
   ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id])
+  owner       User      @relation(fields: [ownerId], references: [id])
   itinerary   Itinerary?
   bookings    Booking[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Itinerary {
-  id       String   @id @default(uuid())
-  tripId   String   @unique
-  trip     Trip     @relation(fields: [tripId], references: [id])
-  version  Int      @default(1)
-  days     ItineraryDay[]
-  meta     Json?
+  id      String         @id @default(uuid())
+  tripId  String         @unique
+  trip    Trip           @relation(fields: [tripId], references: [id])
+  version Int            @default(1)
+  days    ItineraryDay[]
+  meta    Json?
 }
 
 model ItineraryDay {
-  id           String   @id @default(uuid())
+  id          String     @id @default(uuid())
   itineraryId  String
   dayIndex     Int
   date         DateTime
   activities   Json
-  itinerary    Itinerary @relation(fields: [itineraryId], references: [id])
+  itinerary    Itinerary  @relation(fields: [itineraryId], references: [id])
 }
 
 model Hotel {
@@ -71,17 +71,17 @@ model Hotel {
 }
 
 model Booking {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   userId    String
   tripId    String?
   hotelId   String
-  status    BookingStatus @default(PENDING)
+  status    BookingStatus  @default(PENDING)
   amount    Float?
   checkIn   DateTime?
   checkOut  DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  trip      Trip?    @relation(fields: [tripId], references: [id])
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id])
+  trip      Trip?          @relation(fields: [tripId], references: [id])
 }
 
 model Message {
