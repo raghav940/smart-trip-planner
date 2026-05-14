@@ -52,6 +52,7 @@ See the documentation folder for architecture, API contracts, and MVP scope:
 - [docs/mvp.md](docs/mvp.md)
 - [docs/roadmap.md](docs/roadmap.md)
 - [docs/sprints.md](docs/sprints.md)
+- [docs/issues.md](docs/issues.md)
 - [docs/api.md](docs/api.md)
 
 ## Contributing

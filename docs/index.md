@@ -7,6 +7,7 @@ Contents:
 - [MVP scope](mvp.md)
 - [Development roadmap](roadmap.md)
 - [Sprint plan](sprints.md)
+- [Issue backlog](issues.md)
 - [API contract (starter)](api.md)
 - [Prerequisites & setup](prerequisites.md)
 
