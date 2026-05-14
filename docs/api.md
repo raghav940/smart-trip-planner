@@ -1,6 +1,6 @@
 # API — Starter Contracts
 
-This file lists core REST endpoints to implement for the MVP. Use OpenAPI/Swagger to formalize.
+This file lists core REST endpoints to implement for the MVP using only open-source and free-to-use services. Use OpenAPI/Swagger to formalize.
 
 ## Auth
 - `POST /api/auth/signup` — register
@@ -19,20 +19,33 @@ This file lists core REST endpoints to implement for the MVP. Use OpenAPI/Swagge
 - `GET /api/trips/:id` — get trip
 - `PUT /api/trips/:id` — update trip
 - `DELETE /api/trips/:id` — delete trip
-- `POST /api/trips/:id/generate` — AI-generate itinerary (background job)
+- `POST /api/trips/:id/generate` — AI-generate itinerary using Ollama (background job)
+- `POST /api/trips/:id/regenerate` — regenerate itinerary with updated inputs
 
-## Hotels / Activities
-- `GET /api/hotels` — search
+## Places / Weather / Activities
+- `GET /api/places/search` — search places using OpenStreetMap/Nominatim
+- `GET /api/places/nearby` — nearby attractions, restaurants, and hotels from local data or free sources
+- `GET /api/weather` — weather lookup using Open-Meteo
+- `GET /api/activities` — list activities for a destination
+- `POST /api/activities` — add an activity to a trip
+
+## Hotels / Bookings
+- `GET /api/hotels` — search hotels from your own database or imported free listings
 - `GET /api/hotels/:id` — details
-- `POST /api/hotels/:id/book` — create booking
+- `POST /api/hotels/:id/book` — create booking record
 
 ## Booking
 - `GET /api/bookings` — user bookings
 - `POST /api/bookings` — create booking
+- `POST /api/bookings/:id/cancel` — cancel booking
 
 ## Chat
 - Socket.io namespace: `/chat`
 - REST: `GET /api/chats` — list conversations
+
+## AI Assistant
+- `POST /api/assistant/chat` — trip-planning assistant using self-hosted AI
+- `POST /api/assistant/summarize` — summarize trip or itinerary
 
 ## Admin
 - `GET /api/admin/users` — list users

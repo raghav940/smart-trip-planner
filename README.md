@@ -1,23 +1,25 @@
 # Smart Trip Planner
 
-AI-powered travel planning platform: create, customize, and book itineraries with AI recommendations, manual tools, and historical reuse.
+Open-source travel planning platform for creating, customizing, and reusing itineraries with free-to-use APIs and self-hosted services.
 
 ## Highlights
-- AI-generated itineraries (Gemini/OpenAI)
-- Manual itinerary builder (React DnD, FullCalendar)
-- Real-time chat (Socket.io)
-- Secure auth (JWT, bcrypt) with RBAC
+- AI itinerary generation with self-hosted Ollama models
+- Manual itinerary builder with drag-and-drop planning
+- Real-time chat with Socket.io
+- Secure auth with JWT, bcrypt, and RBAC
 - PostgreSQL + Prisma ORM
-- Cloud media storage (Cloudinary)
-- Analytics (Chart.js / Recharts)
+- Free maps, weather, and geocoding APIs
+- Analytics with Chart.js / Recharts
 
-## Tech Stack
+## Free and Open-Source Stack
 - Frontend: React, Tailwind CSS, Framer Motion, Redux Toolkit
 - Backend: Node.js, Express, Prisma, Socket.io
-- Database: PostgreSQL (Neon or Supabase)
-- AI: Gemini API / OpenAI API
-- Storage: Cloudinary (images), S3-compatible for backups
-- Deployment: Vercel (frontend), Render (backend), Neon/Supabase (DB)
+- Database: PostgreSQL
+- AI: Ollama with open models such as Llama, Mistral, or Qwen
+- Maps: OpenStreetMap, Leaflet, Nominatim
+- Weather: Open-Meteo
+- Storage: local uploads or self-hosted MinIO
+- Payments: mock flow for MVP, no paid gateway required
 
 ## Getting Started (developer)
 1. Clone the repo
@@ -27,7 +29,7 @@ git clone <your-repo-url>
 cd smart\ trip\ planner
 ```
 
-2. Create `.env` files for frontend and backend with required keys (DB, AI keys, Cloudinary, SMTP, JWT secrets).
+2. Create `.env` files for frontend and backend with required keys. Keep secrets only for your own backend services.
 
 3. Install and run backend & frontend locally (example)
 
@@ -55,8 +57,8 @@ See the documentation folder for architecture, API contracts, and MVP scope:
 - Add unit and integration tests for backend and frontend changes.
 
 ## License
-Add your preferred license here.
+MIT License. See [LICENSE](LICENSE).
 
 ---
 
-If you want, I can expand any docs page into more detail (DB schema, OpenAPI, CI, or deploy guides).
+If you want, I can expand any docs page into more detail (DB schema, OpenAPI, CI, or deployment guides).

@@ -1,120 +1,504 @@
 openapi: 3.0.3
 info:
   title: Smart Trip Planner API
-  version: 0.1.0
-  description: Starter OpenAPI spec for Smart Trip Planner (auth, trips, hotels, bookings, chat)
+  version: 1.0.0
+  description: >-
+    REST API for the open-source Smart Trip Planner. The backend is designed to
+    work with self-hosted AI (Ollama), OpenStreetMap/Nominatim for places, and
+    Open-Meteo for weather. No paid third-party APIs are required for the MVP.
 servers:
-  - url: https://api.example.com
-    description: Production server
   - url: http://localhost:4000
-    description: Local dev
+    description: Local development
+  - url: https://api.smarttripplanner.example
+    description: Production
+tags:
+  - name: Auth
+  - name: Users
+  - name: Trips
+  - name: Itinerary
+  - name: Places
+  - name: Weather
+  - name: Hotels
+  - name: Bookings
+  - name: Chat
+  - name: Assistant
+  - name: Admin
 paths:
   /api/auth/signup:
     post:
+      tags: [Auth]
       summary: Register a new user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Signup'
+              $ref: '#/components/schemas/SignupRequest'
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
   /api/auth/login:
     post:
-      summary: Login
+      tags: [Auth]
+      summary: Authenticate a user
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: OK
+  /api/auth/forgot:
+    post:
+      tags: [Auth]
+      summary: Request a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Reset email queued
+  /api/auth/reset:
+    post:
+      tags: [Auth]
+      summary: Reset password with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password updated
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+    put:
+      tags: [Users]
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Updated
   /api/trips:
     get:
-      summary: List user trips
-      security: [{ bearerAuth: [] }]
+      tags: [Trips]
+      summary: List trips for the authenticated user
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: OK
     post:
-      summary: Create a trip (manual)
-      security: [{ bearerAuth: [] }]
+      tags: [Trips]
+      summary: Create a trip manually
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TripCreate'
+              $ref: '#/components/schemas/TripCreateRequest'
       responses:
         '201':
           description: Created
+  /api/trips/{tripId}:
+    get:
+      tags: [Trips]
+      summary: Get a trip by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: OK
+    put:
+      tags: [Trips]
+      summary: Update a trip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TripUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Trips]
+      summary: Delete a trip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '204':
+          description: Deleted
   /api/trips/{tripId}/generate:
     post:
-      summary: Generate AI itinerary (enqueue job)
-      security: [{ bearerAuth: [] }]
+      tags: [Itinerary]
+      summary: Generate an itinerary with self-hosted AI
+      security:
+        - bearerAuth: []
       parameters:
-        - name: tripId
-          in: path
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '202':
+          description: Accepted
+  /api/trips/{tripId}/regenerate:
+    post:
+      tags: [Itinerary]
+      summary: Regenerate an existing itinerary
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '202':
+          description: Accepted
+  /api/trips/{tripId}/share:
+    post:
+      tags: [Itinerary]
+      summary: Create a share link for a trip or itinerary
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '201':
+          description: Share link created
+  /api/places/search:
+    get:
+      tags: [Places]
+      summary: Search places using OpenStreetMap / Nominatim
+      parameters:
+        - name: q
+          in: query
           required: true
           schema:
             type: string
       responses:
-        '202':
-          description: Accepted (job queued)
+        '200':
+          description: OK
+  /api/places/nearby:
+    get:
+      tags: [Places]
+      summary: Get nearby places and attractions
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+  /api/weather:
+    get:
+      tags: [Weather]
+      summary: Fetch weather via Open-Meteo
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
   /api/hotels:
     get:
-      summary: Search hotels
+      tags: [Hotels]
+      summary: Search hotels from the local database or imported listings
       parameters:
         - name: q
+          in: query
+          schema:
+            type: string
+        - name: city
           in: query
           schema:
             type: string
       responses:
         '200':
           description: OK
-  /api/bookings:
+  /api/hotels/{hotelId}:
+    get:
+      tags: [Hotels]
+      summary: Get hotel details
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
+      responses:
+        '200':
+          description: OK
+  /api/hotels/{hotelId}/book:
     post:
-      summary: Create booking
-      security: [{ bearerAuth: [] }]
+      tags: [Bookings]
+      summary: Create a booking record
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/HotelId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingCreate'
+              $ref: '#/components/schemas/BookingCreateRequest'
       responses:
         '201':
           description: Created
+  /api/bookings:
+    get:
+      tags: [Bookings]
+      summary: List current user bookings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [Bookings]
+      summary: Create a booking record
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreateRequest'
+      responses:
+        '201':
+          description: Created
+  /api/bookings/{bookingId}/cancel:
+    post:
+      tags: [Bookings]
+      summary: Cancel a booking
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Cancelled
+  /api/chats:
+    get:
+      tags: [Chat]
+      summary: List conversations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+  /api/assistant/chat:
+    post:
+      tags: [Assistant]
+      summary: Chat with the self-hosted AI assistant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantChatRequest'
+      responses:
+        '200':
+          description: OK
+  /api/assistant/summarize:
+    post:
+      tags: [Assistant]
+      summary: Summarize a trip or itinerary with self-hosted AI
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistantSummarizeRequest'
+      responses:
+        '200':
+          description: OK
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: List users for admin
+      security:
+        - bearerAuth: []
+        - roleAdmin: []
+      responses:
+        '200':
+          description: OK
+  /api/admin/analytics:
+    get:
+      tags: [Admin]
+      summary: Get analytics metrics for admin
+      security:
+        - bearerAuth: []
+        - roleAdmin: []
+      responses:
+        '200':
+          description: OK
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    roleAdmin:
+      type: apiKey
+      in: header
+      name: X-Role
+  parameters:
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema:
+        type: string
+    HotelId:
+      name: hotelId
+      in: path
+      required: true
+      schema:
+        type: string
+    BookingId:
+      name: bookingId
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
-    Signup:
+    SignupRequest:
       type: object
       required: [email, password]
       properties:
         email:
           type: string
+          format: email
         password:
           type: string
+          minLength: 8
         name:
           type: string
-    Login:
+    LoginRequest:
       type: object
       required: [email, password]
       properties:
         email:
           type: string
+          format: email
         password:
           type: string
-    TripCreate:
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    ResetPasswordRequest:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 8
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [ADMIN, USER, HOTEL_OWNER]
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    TripCreateRequest:
       type: object
       required: [title, destination, startDate, endDate]
       properties:
@@ -132,13 +516,33 @@ components:
           type: number
         travelers:
           type: integer
-    BookingCreate:
+          minimum: 1
+        notes:
+          type: string
+    TripUpdateRequest:
       type: object
-      required: [tripId, hotelId]
+      properties:
+        title:
+          type: string
+        destination:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        budget:
+          type: number
+        travelers:
+          type: integer
+        notes:
+          type: string
+    BookingCreateRequest:
+      type: object
+      required: [tripId]
       properties:
         tripId:
-          type: string
-        hotelId:
           type: string
         roomType:
           type: string
@@ -148,7 +552,23 @@ components:
         checkOut:
           type: string
           format: date
-    Error:
+        amount:
+          type: number
+    AssistantChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        tripId:
+          type: string
+    AssistantSummarizeRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+    ErrorResponse:
       type: object
       properties:
         message:
