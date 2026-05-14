@@ -28,10 +28,10 @@ export default function TripDetails(){
       <div className="mb-4">
         <Link to={`/trips/${id}/edit`} className="text-sky-600">Edit trip</Link>
       </div>
-      <div>
-        <h3 className="font-semibold">Itinerary</h3>
-        <div className="text-sm text-gray-600">Use itinerary pages to manage days (not implemented yet).</div>
-      </div>
+        <div className="mb-4">
+          <h3 className="font-semibold">Itinerary</h3>
+          <div className="text-sm text-gray-600">Manage days: <a href={`/trips/${id}/itinerary`} className="text-sky-600">Open itinerary</a></div>
+        </div>
     </div>
   )
 }

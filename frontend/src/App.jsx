@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Trips from './pages/Trips'
 import TripForm from './pages/TripForm'
 import TripDetails from './pages/TripDetails'
+import Itinerary from './pages/Itinerary'
 
 function Header(){
   const { user, logout } = useAuth()
@@ -48,6 +49,7 @@ export default function App(){
        <Route path="/trips/new" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
        <Route path="/trips/:id" element={<ProtectedRoute><TripDetails /></ProtectedRoute>} />
        <Route path="/trips/:id/edit" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
+      <Route path="/trips/:id/itinerary" element={<ProtectedRoute><Itinerary /></ProtectedRoute>} />
      </Routes>
    </main>
   </div>
