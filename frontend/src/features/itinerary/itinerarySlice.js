@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import * as api from '../../api/itinerary'
 
 export const fetchItineraryDays = createAsyncThunk('itinerary/fetchDays', async (tripId) => {
@@ -26,10 +26,27 @@ const slice = createSlice({
       .addCase(fetchItineraryDays.pending, (s)=> { s.status = 'loading' })
       .addCase(fetchItineraryDays.fulfilled, (s, a)=> { s.status='succeeded'; s.days = a.payload })
       .addCase(fetchItineraryDays.rejected, (s, a)=> { s.status='failed'; s.error = a.error.message })
-      .addCase(addItineraryDay.fulfilled, (s, a)=> { s.days.push(a.payload) })
+
+      // addItineraryDay: optimistic push on pending
+      .addCase(addItineraryDay.pending, (s, a) => {
+        const temp = { id: `temp-${Date.now()}`, ...a.meta.arg.payload }
+        s.days.push(temp)
+      })
+      .addCase(addItineraryDay.fulfilled, (s, a) => {
+        s.days = s.days.map(d => d.id && String(d.id).startsWith('temp-') ? a.payload : d)
+      })
+      .addCase(addItineraryDay.rejected, (s, a) => {
+        s.days = s.days.filter(d => !(d.id && String(d.id).startsWith('temp-')))
+        s.error = a.error?.message
+      })
+
       .addCase(editItineraryDay.fulfilled, (s, a)=> { s.days = s.days.map(d => d.id===a.payload.id ? a.payload : d) })
-      .addCase(removeItineraryDay.fulfilled, (s, a)=> { /* optimistic removal handled by caller */ })
+      .addCase(removeItineraryDay.pending, (s, a) => { s.days = s.days.filter(d => d.id !== a.meta.arg.dayId) })
+      .addCase(removeItineraryDay.rejected, (s, a) => { s.error = a.error?.message })
   }
 })
+
+export const selectItineraryState = state => state.itinerary
+export const selectItineraryDays = createSelector([selectItineraryState], s => s.days)
 
 export default slice.reducer
