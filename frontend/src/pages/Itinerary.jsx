@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { listItineraryDays, createItineraryDay, updateItineraryDay, deleteItineraryDay } from '../api/itinerary'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchItineraryDays, addItineraryDay, editItineraryDay, removeItineraryDay } from '../features/itinerary/itinerarySlice'
 
 function DayForm({ initial = {}, onSave, onCancel }){
   const [date, setDate] = useState(initial.date || '')
@@ -31,38 +33,26 @@ function DayForm({ initial = {}, onSave, onCancel }){
 export default function Itinerary(){
   const { id } = useParams()
   const tripId = id
-  const [days, setDays] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { days, status } = useSelector(state => state.itinerary)
   const [editing, setEditing] = useState(null)
   const [creating, setCreating] = useState(false)
+  const dispatch = useDispatch()
 
-  const load = async ()=>{
-    setLoading(true)
-    try{
-      const data = await listItineraryDays(tripId)
-      setDays(data)
-    }catch(e){ console.error(e) }
-    setLoading(false)
-  }
-
-  useEffect(()=>{ load() },[tripId])
+  useEffect(()=>{ dispatch(fetchItineraryDays(tripId)) },[dispatch, tripId])
 
   const handleCreate = async (payload)=>{
-    await createItineraryDay(tripId, payload)
+    await dispatch(addItineraryDay({ tripId, payload }))
     setCreating(false)
-    load()
   }
 
   const handleUpdate = async (dayId, payload)=>{
-    await updateItineraryDay(tripId, dayId, payload)
+    await dispatch(editItineraryDay({ tripId, dayId, payload }))
     setEditing(null)
-    load()
   }
 
   const handleDelete = async (dayId)=>{
     if(!confirm('Delete this day?')) return
-    await deleteItineraryDay(tripId, dayId)
-    load()
+    await dispatch(removeItineraryDay({ tripId, dayId }))
   }
 
   return (
@@ -74,10 +64,10 @@ export default function Itinerary(){
 
       {creating && <div className="mb-4 p-4 bg-white rounded shadow-sm"><DayForm onSave={handleCreate} onCancel={()=>setCreating(false)} /></div>}
 
-      {loading ? <div>Loading...</div> : (
+      {status === 'loading' ? <div>Loading...</div> : (
         <div className="space-y-3">
-          {days.length === 0 && <div className="text-gray-600">No itinerary days yet.</div>}
-          {days.map(day=> (
+          {(!days || days.length === 0) && <div className="text-gray-600">No itinerary days yet.</div>}
+          {days && days.map(day=> (
             <div key={day.id} className="p-3 bg-white rounded shadow-sm">
               {editing === day.id ? (
                 <DayForm initial={day} onSave={(p)=>handleUpdate(day.id,p)} onCancel={()=>setEditing(null)} />

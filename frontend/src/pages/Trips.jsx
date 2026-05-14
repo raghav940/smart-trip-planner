@@ -1,28 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { listTrips, deleteTrip } from '../api/trips'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchTrips, removeTrip } from '../features/trips/tripsSlice'
 
 export default function Trips(){
-  const [trips, setTrips] = useState([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const trips = useSelector(state => state.trips.items)
+  const status = useSelector(state => state.trips.status)
 
-  const load = async () => {
-    setLoading(true)
-    try{
-      const data = await listTrips()
-      setTrips(data)
-    }catch(e){
-      console.error(e)
-    }finally{setLoading(false)}
-  }
-
-  useEffect(()=>{ load() }, [])
+  useEffect(()=>{ if(status==='idle') dispatch(fetchTrips()) }, [dispatch, status])
 
   const handleDelete = async (id) => {
     if(!confirm('Delete this trip?')) return
-    await deleteTrip(id)
-    load()
+    dispatch(removeTrip(id))
   }
 
   return (
@@ -31,7 +22,7 @@ export default function Trips(){
         <h2 className="text-2xl font-bold">Your Trips</h2>
         <button onClick={()=>navigate('/trips/new')} className="px-3 py-1 bg-sky-600 text-white rounded">New Trip</button>
       </div>
-      {loading ? <div>Loading...</div> : (
+      {status === 'loading' ? <div>Loading...</div> : (
         <div className="space-y-3">
           {trips.length === 0 && <div className="text-gray-600">No trips yet.</div>}
           {trips.map(t=> (
