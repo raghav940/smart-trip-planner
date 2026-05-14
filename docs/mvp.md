@@ -1,5 +1,7 @@
 # MVP Scope & Roadmap
 
+This page defines the smallest shippable product. For the full phase-by-phase plan, see [Development roadmap](roadmap.md).
+
 ## Phase 0 — Foundations
 - Auth: signup/login/forgot/reset (JWT + refresh tokens)
 - DB: users, trips, hotels basic schemas

@@ -5,6 +5,7 @@ Welcome to the Smart Trip Planner docs. This folder contains high-level architec
 Contents:
 - [Architecture](architecture.md)
 - [MVP scope](mvp.md)
+- [Development roadmap](roadmap.md)
 - [API contract (starter)](api.md)
 - [Prerequisites & setup](prerequisites.md)
 
